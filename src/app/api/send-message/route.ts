@@ -20,16 +20,16 @@ export async function POST(request: Request) {
         }
 
         // check if user is accepting messages
-        if(!user.isAcceptingMessages){
-            return Response.json(
-                {
-                    success: false,
-                    message: "User is not accepting messages"
-                },
-                {
-                    status: 403
-                }
-            );
+        if (!user.isAcceptingMessage) {
+          return Response.json(
+            {
+              success: false,
+              message: "User is not accepting messages",
+            },
+            {
+              status: 403,
+            }
+          );
         }
 
         const message = {

@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import axios, { AxiosError } from "axios";
 import { X } from "lucide-react";
-import { Message } from "@/model/User";
+import { Message } from "@/models/user.model";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertDialog,
@@ -37,7 +37,7 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
       toast({
         title: response.data.message,
       });
-      onMessageDelete(message._id);
+      onMessageDelete(message._id!);
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       toast({
