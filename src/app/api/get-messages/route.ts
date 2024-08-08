@@ -1,53 +1,89 @@
-import { auth } from "@/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/model/User";
-import mongoose from "mongoose";
+import UserModel from "@/models/user.model";
 import { User } from "next-auth";
+import mongoose from "mongoose";
 
 export async function GET(request: Request) {
-  await dbConnect();
-  const session = await auth();
-  const user: User = session?.user as User;
+    await dbConnect();
 
-  if (!session || !session.user) {
-    return Response.json(
-      { message: "User not found!!", success: false },
-      { status: 404 }
-    );
-  }
+    const session = await getServerSession(authOptions);
+    const user: User = session?.user;
 
-  //user._id is a string, so we need to convert it to ObjectId for using aggregation pipeline
-  const userId = new mongoose.Types.ObjectId(user._id);
-
-  try {
-    const user = await UserModel.aggregate([
-      {
-        $match: {
-          _id: userId,
-        },
-      },
-      {
-        $unwind: "$messages",
-      },
-      { $sort: { "messages.createdAt": -1 } },
-      { $group: { _id: "$_id", messages: { $push: "$messages" } } },
-    ]);
-
-    if (!user || user.length === 0) {
-      return Response.json(
-        {
-          message: "No messages found!!",
-          success: false,
-        },
-        { status: 404 }
-      );
+    if (!session || !session.user) {
+        return Response.json(
+            {
+                success: false,
+                message: "Not Authencaited"
+            },
+            {
+                status: 401
+            }
+        )
     }
 
-    return Response.json({ messages: user[0].messages, success: true });
-  } catch (error) {
-    return Response.json(
-      { message: "Failed to get messages!!", success: false },
-      { status: 500 }
-    );
-  }
+    const userId = new mongoose.Types.ObjectId(user._id);
+    try {
+        const user = await UserModel.aggregate(
+            [
+                {
+                    $match : {
+                        _id: userId
+                    }
+                },
+                {
+                    $unwind: "$messages"
+                },
+                {
+                    $sort: {
+                        "messages.createdAt": -1
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$_id",
+                        messages: {
+                            $push: "$messages"
+                        }
+                    }
+                }
+            ]
+        )
+
+
+        if(!user || user.length === 0){
+            return Response.json(
+                {
+                    success: false,
+                    message: "Messages are not avaliable"
+                },
+                {
+                    status: 401
+                }
+            )
+        }
+
+        return Response.json(
+            {
+                success: true,
+                message: "Messages fetched successfully",
+                messages: user[0].messages 
+            },
+            {
+                status: 200
+            }
+        )
+    } catch (error) {
+        console.log("Error getting messages", error);
+        return Response.json(
+            {
+                success: false,
+                message: "Failed to get messages " + error
+            },
+            {
+                status: 500
+            }
+        )
+    }
 }

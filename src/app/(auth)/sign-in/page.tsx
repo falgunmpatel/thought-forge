@@ -1,26 +1,29 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { z } from "zod";
+import Link from "next/link";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
+import { Bot, Loader2 } from "lucide-react";
 import { signInSchema } from "@/schemas/signInSchema";
 import { signIn } from "next-auth/react";
-import { providerMap } from "@/auth";
-import { Separator } from "@radix-ui/react-separator";
+import Image from "next/image";
+import { error } from "console";
 
 export default function SignInForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -40,19 +43,19 @@ export default function SignInForm() {
     });
 
     if (result?.error) {
-      // if (result.error === "CredentialsSignin") {
-      toast({
-        title: "Login Failed",
-        description: "Incorrect username or password",
-        variant: "destructive",
-      });
-      // } else {
-      //   toast({
-      //     title: "Error",
-      //     description: "Error signing in",
-      //     variant: "destructive",
-      //   });
-      // }
+      if (result.error === "CredentialsSignin") {
+        toast({
+          title: "Login Failed",
+          description: "Incorrect username or password",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
     }
 
     if (result?.url) {
@@ -61,61 +64,80 @@ export default function SignInForm() {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-800">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
-            Welcome Back to Thought Forge
+    <div className="flex flex-col items-center justify-center h-screen w-full gap-6 bg-black">
+      <div className="p-4 w-[40%]">
+        <div className="flex flex-col items-center justify-center gap-3 text-white">
+          <h1 className="text-4xl font-bold text-center text-balance">
+            Thought Forge
           </h1>
-          <p className="mb-4">Sign in to continue your secret conversations</p>
+          <Bot className="animate-spin" />
+          <p className="text-center mt-2 text-lg">Login to account</p>
         </div>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-8 text-white"
+          >
             <FormField
-              name="identifier"
               control={form.control}
+              name="identifier"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email/Username</FormLabel>
-                  <Input {...field} />
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="email"
+                      {...field}
+                      className="text-black"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
-              name="password"
               control={form.control}
+              name="password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
-                  <Input type="password" {...field} />
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="password"
+                      {...field}
+                      className="text-black"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button className="w-full" type="submit">
-              Sign In
+            <Button type="submit" disabled={isSubmitting} className="w-full">
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait
+                </>
+              ) : (
+                "Login"
+              )}
             </Button>
           </form>
         </Form>
-        <div className="flex justify-center space-x-4">
-          {providerMap.map((provider) =>
-            provider.id === "credentials" ? null : (
-              <Button
-                key={provider.id}
-                onClick={() => signIn(provider.id)}
-                className="w-full"
-              >
-                Sign in with {provider.name}
-              </Button>
-            )
-          )}
+        <div className="text-center mt-4">
+          <Button
+            className="w-full flex gap-1"
+            onClick={() => signIn("google")}
+          >
+            <Image src="/google.svg" alt="google" width={16} height={16} />
+            SignIn with Google
+          </Button>
         </div>
         <div className="text-center mt-4">
-          <p>
-            Not a member yet?{" "}
-            <Link href="/sign-up" className="text-blue-600 hover:text-blue-800">
-              Sign up
+          <p className="text-white">
+            Create a new account ?{" "}
+            <Link href="/sign-up" className="text-blue-400 hover:text-blue-600">
+              SignUp
             </Link>
           </p>
         </div>
