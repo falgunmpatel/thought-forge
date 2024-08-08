@@ -11,7 +11,7 @@ function Navbar() {
   const user: User = session?.user as User;
 
   return (
-    <nav className="p-4 md:p-6 shadow-md bg-gray-900 text-white">
+    <nav className="fixed top-0 w-full h-20 p-4 md:p-6 shadow-md bg-gray-900 text-white">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
         <a href="#" className="text-xl font-bold mb-4 md:mb-0">
           Thought Forge

@@ -6,9 +6,9 @@ interface RootLayoutProps {
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div>
       <Navbar />
-      {children}
+      <div className="mt-[10vh]">{children}</div>
     </div>
   );
 }
