@@ -19,13 +19,16 @@ import { Input } from "@/components/ui/input";
 import { Bot, Loader2 } from "lucide-react";
 import { signInSchema } from "@/schemas/signInSchema";
 import { signIn } from "next-auth/react";
-import Image from "next/image";
-import { error } from "console";
+import { providerMap } from "@/auth";
+import { Eye } from "lucide-react";
+import { set } from "mongoose";
+import { useState } from "react";
 
 export default function SignInForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const [hidePassword, setHidePassword] = useState(true);
 
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
@@ -43,7 +46,7 @@ export default function SignInForm() {
     });
 
     if (result?.error) {
-      if (result.error === "CredentialsSignin") {
+      if (result.error === "Configuration") {
         toast({
           title: "Login Failed",
           description: "Incorrect username or password",
@@ -64,14 +67,19 @@ export default function SignInForm() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-full gap-6 bg-black">
-      <div className="p-4 w-[40%]">
-        <div className="flex flex-col items-center justify-center gap-3 text-white">
-          <h1 className="text-4xl font-bold text-center text-balance">
-            Thought Forge
+    <div className="flex flex-col justify-center items-center min-h-screen bg-white/80">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md border-4 border-black/40">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold font-serif from-neutral-500 tracking-tight lg:text-2xl mb-6">
+            Welcome Back to <br />
+            <span className="font-extrabold font-sans bg-black text-white p-1 px-2 rounded-xl">
+              Thought Forge
+            </span>
           </h1>
-          <Bot className="animate-spin" />
-          <p className="text-center mt-2 text-lg">Login to account</p>
+          <p className="mb-4">
+            <span className="font-semibold text-blue-600">Sign in</span>
+            &nbsp;to continue your secret conversations
+          </p>
         </div>
         <Form {...form}>
           <form
@@ -84,13 +92,7 @@ export default function SignInForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="email"
-                      {...field}
-                      className="text-black"
-                    />
-                  </FormControl>
+                  <Input {...field} placeholder="thought@xyz.com" />
                   <FormMessage />
                 </FormItem>
               )}
@@ -101,14 +103,26 @@ export default function SignInForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
-                  <FormControl>
+                  <div className="flex gap-2">
                     <Input
-                      type="password"
-                      placeholder="password"
                       {...field}
-                      className="text-black"
+                      placeholder="********"
+                      type={hidePassword ? "password" : "text"}
+                      value={field.value}
                     />
-                  </FormControl>
+
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        setHidePassword(!hidePassword);
+                        setTimeout(() => {
+                          setHidePassword(true);
+                        }, 500);
+                      }}
+                    >
+                      <Eye />
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -134,10 +148,13 @@ export default function SignInForm() {
           </Button>
         </div>
         <div className="text-center mt-4">
-          <p className="text-white">
-            Create a new account ?{" "}
-            <Link href="/sign-up" className="text-blue-400 hover:text-blue-600">
-              SignUp
+          <p>
+            Not a member yet?{" "}
+            <Link
+              href="/sign-up"
+              className="text-blue-600 hover:text-blue-800 font-semibold"
+            >
+              Sign up
             </Link>
           </p>
         </div>

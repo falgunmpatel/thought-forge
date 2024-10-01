@@ -20,7 +20,9 @@ export default function Home() {
   return (
     <>
       {/* Main content */}
-      <main className="flex-grow flex flex-col items-center justify-center px-4 md:px-24 py-12 bg-gray-800 text-white min-h-[90vh]">
+      <main className="h-[78vh] w-full dark:bg-black bg-white  dark:bg-grid-white/[0.2] bg-grid-black/[0.2] relative flex flex-col items-center justify-center">
+        {/* Radial gradient for the container to give a faded look */}
+        <div className="absolute pointer-events-none inset-0 flex items-center justify-center dark:bg-black bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
         <section className="text-center mb-8 md:mb-12">
           <h1 className="text-3xl md:text-5xl font-bold">
             Dive into the World of Anonymous Thoughts
@@ -32,13 +34,17 @@ export default function Home() {
 
         {/* Carousel for Messages */}
         <Carousel
-          plugins={[Autoplay({ delay: 2000 })]}
+          plugins={[
+            Autoplay({
+              delay: 2000,
+            }),
+          ]}
           className="w-full max-w-lg md:max-w-xl"
         >
           <CarouselContent>
             {messages.map((message, index) => (
               <CarouselItem key={index} className="p-4">
-                <Card>
+                <Card className="shadow-md border-4 bg-gradient-to-tr from-gray-100 to-gray-300 border-black text-black">
                   <CardHeader>
                     <CardTitle>{message.title}</CardTitle>
                   </CardHeader>
@@ -46,7 +52,7 @@ export default function Home() {
                     <Mail className="flex-shrink-0" />
                     <div>
                       <p>{message.content}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs font-semibold font-mono">
                         {message.received}
                       </p>
                     </div>
@@ -56,10 +62,11 @@ export default function Home() {
             ))}
           </CarouselContent>
         </Carousel>
+        {/* </p> */}
       </main>
 
       {/* Footer */}
-      <footer className="text-center p-4 md:p-6 bg-gray-900 text-white">
+      <footer className="text-center p-4 md:p-6 bg-white">
         © 2023 Thought Forge. All rights reserved.
       </footer>
     </>

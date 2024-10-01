@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
-import { title } from "process";
 import {
   Form,
   FormField,
@@ -21,12 +20,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
 
 const SignUpPage = () => {
   const [username, setUsername] = useState("");
   const [usernameMessage, setUsernameMessage] = useState("");
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hidePassword, setHidePassword] = useState(true);
   const debounced = useDebounceCallback(setUsername, 300);
   const { toast } = useToast();
   const router = useRouter();
@@ -70,7 +71,6 @@ const SignUpPage = () => {
 
     try {
       const response = await axios.post<ApiResponse>("/api/sign-up", data);
-      console.log(response.data);
 
       toast({
         title: response.data.success ? "Success!!" : "Error!!",
@@ -84,8 +84,9 @@ const SignUpPage = () => {
       const axiosError = error as AxiosError<ApiResponse>;
       let errorMessage = axiosError.response?.data.message;
       toast({
-        title: "SignUp failed!!",
-        description: errorMessage,
+        title: "Sign Up failed!",
+        description:
+          "Resend only allows sending emails to my email address. Please use demo credentials!",
         variant: "destructive",
       });
     } finally {
@@ -94,13 +95,19 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-800">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+    <div className="flex justify-center items-center min-h-screen bg-white">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md border-4 border-black/40">
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
-            Join ThoughtForge
+          <h1 className="text-2xl font-bold font-serif from-neutral-500 tracking-tight lg:text-2xl mb-6">
+            Join <br />
+            <span className="font-extrabold font-sans bg-black text-white p-1 px-2 rounded-xl">
+              Thought Forge
+            </span>
           </h1>
-          <p className="mb-4">Sign up to start your anonymous adventure</p>
+          <p className="mb-4">
+            <span className="font-semibold text-blue-600">Sign Up</span>
+            &nbsp;to start your anonymous adventure
+          </p>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -112,6 +119,7 @@ const SignUpPage = () => {
                   <FormLabel>Username</FormLabel>
                   <Input
                     {...field}
+                    placeholder="Enter your username"
                     onChange={(e) => {
                       field.onChange(e);
                       debounced(e.target.value);
@@ -139,9 +147,13 @@ const SignUpPage = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
-                  <Input {...field} name="email" />
-                  <p className="text-muted text-gray-400 text-sm">
-                    We will send you a verification code
+                  <Input
+                    {...field}
+                    name="email"
+                    placeholder="Enter your email"
+                  />
+                  <p className="text-black font-thin text-sm">
+                    We will send you a verification code!
                   </p>
                   <FormMessage />
                 </FormItem>
@@ -154,7 +166,26 @@ const SignUpPage = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
-                  <Input type="password" {...field} name="password" />
+                  <div className="flex gap-2">
+                    <Input
+                      {...field}
+                      placeholder="********"
+                      type={hidePassword ? "password" : "text"}
+                      value={field.value}
+                    />
+
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        setHidePassword(!hidePassword);
+                        setTimeout(() => {
+                          setHidePassword(true);
+                        }, 500);
+                      }}
+                    >
+                      <Eye />
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -174,7 +205,10 @@ const SignUpPage = () => {
         <div className="text-center mt-4">
           <p>
             Already a member?{" "}
-            <Link href="/sign-in" className="text-blue-600 hover:text-blue-800">
+            <Link
+              href="/sign-in"
+              className="text-blue-600 hover:text-blue-800 font-semibold"
+            >
               Sign in
             </Link>
           </p>
