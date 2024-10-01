@@ -9,20 +9,17 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Bot, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { signInSchema } from "@/schemas/signInSchema";
 import { signIn } from "next-auth/react";
-import { providerMap } from "@/auth";
 import { Eye } from "lucide-react";
-import { set } from "mongoose";
-import { useState } from "react";
+import Image from "next/image";
 
 export default function SignInForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,10 +79,7 @@ export default function SignInForm() {
           </p>
         </div>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-8 text-white"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
               name="identifier"
