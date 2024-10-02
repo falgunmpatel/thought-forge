@@ -204,7 +204,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 Name - Falgun Patel
 Email - falgunmpatel9123@gmail.com
 
-Project Link: [thought-forge](https://github.com/falgunmpatel/rapid-write)
+Project Link: [thought-forge](https://github.com/falgunmpatel/thought-forge)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
